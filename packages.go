@@ -2,11 +2,12 @@ package main
 
 import (
 	"fmt"
-	"math/rand"
-	"math"
 )
 
+func add(x int, y int) int {
+	return x + y
+}
+
 func main() {
-	fmt.Println("My favorite number is", rand.Intn(10))
-	fmt.Printf("Now you have %g problems.\n", math.Sqrt(7))
+	fmt.Println(add(33,11))
 }
