@@ -5,36 +5,14 @@ import (
 )
 	
 func main() {
-	for i :=0 ; i < 10; i++ {
-		hantei(&i)
-  }
+	 var hex Hex = 100
 
-	n, m := 10, 20
-	swap2(&n, &m)
-	// println(n, m)
-	
-	println(n, m)
-
-
-
+	 fmt.Println(hex.String())
 }
 
-func hantei(i *int) {
-	if *i%2 == 0 {
-		fmt.Printf("%d-偶数\n", *i)
-	} else {
-		fmt.Printf("%d-奇数\n", *i)
-	}
+type Hex int
+
+func (h Hex) String() string {
+	return fmt.Sprintf("%x", int(h))
 }
 
-func swap(a, b int)(int, int){
-	return b, a
-}
-
-func swap2(a, b *int)(int, int){
-	var tmp = *a
-	*a = *b
-	*b = tmp
-
-	return *a, *b
-}
