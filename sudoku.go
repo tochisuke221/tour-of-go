@@ -1,18 +1,16 @@
 package main
 
-import (
-	"fmt"
-)
+// import (
+// 	"fmt"
+// )
+
+type MyInt int
+func (n *MyInt) Inc() { *n++ }
 	
 func main() {
-	 var hex Hex = 100
-
-	 fmt.Println(hex.String())
-}
-
-type Hex int
-
-func (h Hex) String() string {
-	return fmt.Sprintf("%x", int(h))
+	var n MyInt
+	println(n)
+	(&n).Inc()
+	println(n)
 }
 
