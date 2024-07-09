@@ -1,44 +1,49 @@
 package main
 
 import (
-	"flag"
-	"log"
-	"path/filepath"
-	"io/fs"
-	"strings"
-
-	"tour-of-go/converter"
+	"fmt"
 )
 
+// インターフェースの定義
+type Stringer interface {
+	String() string
+}
+
+
+type MyString string
+
+func (s MyString) String() string {
+	return "これはMyString型です"
+}
+
+type MyInt int
+func (i MyInt) String() string {
+	return "これはMyInt型です"
+}
+
+type MyBool bool
+func(b MyBool) String() string {
+	return "これはMyBool型です"
+}
+
+
+func F(s Stringer){
+	switch v := s.(type) {
+		case MyString:
+			fmt.Println(string(v) , "S")
+		case MyInt:
+			fmt.Println(int(v) , "I")
+		case MyBool:
+			fmt.Println(bool(v) , "B")
+	}
+}
+
 func main() {
-	var srcFormat, dstFormat string
-
-	flag.StringVar(&srcFormat, "src", "jpg", "変換前のフォーマット")
-	flag.StringVar(&dstFormat, "dst", "png", "変換後のフォーマット")
-
-	flag.Parse()
-
-	if flag.NArg() < 1 {
-		log.Fatal("ディレクトリが指定されていません")
-	}
-
-
-	rootDir := flag.Arg(0)
-
-	err := filepath.Walk(rootDir, func(path string, info fs.FileInfo, err error) error {
-		if err != nil {
-			return err
-		}
-		if !info.IsDir() && strings.HasSuffix(strings.ToLower(info.Name()), "."+srcFormat) {
-			newPath := strings.TrimSuffix(path, "."+srcFormat) + "." + dstFormat
-			if err := converter.Convert(path, newPath, srcFormat, dstFormat); err != nil {
-				log.Printf("failed to convert %s: %v", path, err)
-			}
-		}
-		return nil
-	})
-
-	if err != nil {
-		log.Fatalf("error walking the path %q: %v\n", rootDir, err)
-	}
+	var s Stringer
+	s = MyString("文字列です")
+	F(s)
+	s = MyInt(10)
+	F(s)
+	s = MyBool(true)
+	F(s)
 }
