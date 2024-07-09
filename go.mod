@@ -1,8 +1,5 @@
 module tour-of-go
 
-go 1.22.4
+go 1.18
 
-require (
-	github.com/tenntenn/greeting v1.0.0 // indirect
-	github.com/tenntenn/greeting/v2 v2.0.0 // indirect
-)
+require golang.org/x/image v0.18.0
