@@ -38,6 +38,16 @@ func F(s Stringer){
 	}
 }
 
+type Hoge struct {
+	N int
+}
+
+type Fuga struct {
+	Hoge
+}
+
+
+
 func main() {
 	var s Stringer
 	s = MyString("文字列です")
@@ -46,4 +56,8 @@ func main() {
 	F(s)
 	s = MyBool(true)
 	F(s)
+
+	f := Fuga{Hoge{100}}
+
+	fmt.Println(f.N)
 }
