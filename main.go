@@ -2,62 +2,42 @@ package main
 
 import (
 	"fmt"
+	"os"
 )
 
 // インターフェースの定義
-type Stringer interface {
+type Stringer interface{
 	String() string
 }
 
-
-type MyString string
-
-func (s MyString) String() string {
-	return "これはMyString型です"
-}
-
-type MyInt int
-func (i MyInt) String() string {
-	return "これはMyInt型です"
-}
-
-type MyBool bool
-func(b MyBool) String() string {
-	return "これはMyBool型です"
-}
-
-
-func F(s Stringer){
-	switch v := s.(type) {
-		case MyString:
-			fmt.Println(string(v) , "S")
-		case MyInt:
-			fmt.Println(int(v) , "I")
-		case MyBool:
-			fmt.Println(bool(v) , "B")
+func ToStringer(v interface {}) (Stringer, error) {
+	if s, ok := v.(Stringer); ok {
+		return s, nil
 	}
+
+	return nil, MyError("キャストエラー")
 }
 
-type Hoge struct {
-	N int
+type MyError string
+
+func (e MyError) Error() string {
+	return string(e)
 }
 
-type Fuga struct {
-	Hoge
-}
 
+type S string
+
+func (s S) String() string {
+	return string(s)
+}
 
 
 func main() {
-	var s Stringer
-	s = MyString("文字列です")
-	F(s)
-	s = MyInt(10)
-	F(s)
-	s = MyBool(true)
-	F(s)
+	var v string = "hoge"
 
-	f := Fuga{Hoge{100}}
-
-	fmt.Println(f.N)
+	if s, err := ToStringer(v); err != nil {
+		fmt.Fprintln(os.Stderr, "エラーです:", err)
+	}else {
+		fmt.Println(s.String())
+	}
 }
