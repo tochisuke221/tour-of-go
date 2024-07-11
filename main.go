@@ -6,19 +6,16 @@ import (
 )
 
 func main() {
-	n := 1
-	// nが競合するパターン
+	ch := make(chan int)
+
 	go func() {
-		for i := 2; i <= 5; i++ {
-			fmt.Println(n, "*", i)
-			n *= i
-			time.Sleep(100)
-		}
+		ch <- 100
 	}()
-	
-	for i := 1; i <= 10; i++{
-		fmt.Println(n, "+", i)
-		n += i
-		time.Sleep(100)
-	}
+
+	go func() {
+		v := <-ch
+		fmt.Println(v)
+	}()
+
+	time.Sleep(2* time.Second)
 }
