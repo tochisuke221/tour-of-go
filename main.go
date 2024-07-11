@@ -1,43 +1,51 @@
 package main
 
 import (
+	"bytes"
+	"errors"
 	"fmt"
-	"os"
+	"io"
+	"log"
+	"strings"
+	"unicode/utf8"
 )
 
-// インターフェースの定義
-type Stringer interface{
-	String() string
+type RuneScanner struct {
+	r   io.Reader
+	buf [16]byte
 }
 
-func ToStringer(v interface {}) (Stringer, error) {
-	if s, ok := v.(Stringer); ok {
-		return s, nil
+func NewRuneScanner(r io.Reader) *RuneScanner {
+	return &RuneScanner{r: r}
+}
+
+func (s *RuneScanner) Scan() (rune, error) {
+	n, err := s.r.Read(s.buf[:])
+	if err != nil {
+		return 0, err
 	}
 
-	return nil, MyError("キャストエラー")
+	r, size := utf8.DecodeRune(s.buf[:n])
+	if r == utf8.RuneError {
+		return 0, errors.New("RuneError")
+	}
+
+	s.r = io.MultiReader(bytes.NewReader(s.buf[size:n]), s.r)
+	return r, nil
 }
-
-type MyError string
-
-func (e MyError) Error() string {
-	return string(e)
-}
-
-
-type S string
-
-func (s S) String() string {
-	return string(s)
-}
-
 
 func main() {
-	var v string = "hoge"
+	s := NewRuneScanner(strings.NewReader("Hello, 世界世界世界世界世界世界世界世界世界世界世界世界世界世界世界世界世界"))
+	for {
+		r, err := s.Scan()
+		if err == io.EOF {
+			break
+		}
 
-	if s, err := ToStringer(v); err != nil {
-		fmt.Fprintln(os.Stderr, "エラーです:", err)
-	}else {
-		fmt.Println(s.String())
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		fmt.Printf("%c\n", r)
 	}
 }
