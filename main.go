@@ -2,20 +2,18 @@ package main
 
 import (
 	"fmt"
-	"time"
 )
 
 func main() {
-	ch := make(chan int)
+	ch1 := make(chan int)
+	var ch2 chan string
+	go func() { ch1 <- 100 }()
+	go func() { ch2 <- "hi" }()
 
-	go func() {
-		ch <- 100
-	}()
-
-	go func() {
-		v := <-ch
-		fmt.Println(v)
-	}()
-
-	time.Sleep(2* time.Second)
+	select {
+	case v1 := <-ch1:
+		fmt.Println(v1)
+	case v2 := <-ch2:
+		fmt.Println(v2)
+	}
 }
