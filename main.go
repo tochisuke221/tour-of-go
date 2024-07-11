@@ -6,14 +6,19 @@ import (
 )
 
 func main() {
-	var v int
-	go func() {// ゴールーチン-1
-		time.Sleep(1 * time.Second)
-		v = 100
+	n := 1
+	// nが競合するパターン
+	go func() {
+		for i := 2; i <= 5; i++ {
+			fmt.Println(n, "*", i)
+			n *= i
+			time.Sleep(100)
+		}
 	}()
-	go func() {// ゴールーチン-2
-		time.Sleep(1 * time.Second)
-		fmt.Println(v)
-	}()
-	time.Sleep(2 * time.Second)
+	
+	for i := 1; i <= 10; i++{
+		fmt.Println(n, "+", i)
+		n += i
+		time.Sleep(100)
+	}
 }
