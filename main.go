@@ -1,30 +1,66 @@
 package main
 
 import (
+	"bytes"
+	"encoding/csv"
 	"fmt"
+	"io"
+	"log"
+	"net/http"
+	"sync"
 )
 
-func server(ch chan string){
+func downloadCSV(wg *sync.WaitGroup, urls []string, ch chan []byte) {
+	defer wg.Done()
 	defer close(ch)
 
-	ch <- "Hello"
-	ch <- "World"
-	ch <- "!"
+	for _, url := range urls {
+		resp, err := http.Get(url)
+
+		if err != nil {
+			log.Println("cannot download CSV:", err)
+			continue
+		}
+		b, err := io.ReadAll(resp.Body)
+		if err != nil {
+			log.Println("cannot read CSV:", err)
+			resp.Body.Close() // ensure the response body is closed
+			continue
+		}
+		resp.Body.Close()
+		ch <- b
+	}
 }
 
-func main(){
-	var s string
-	
-	ch := make(chan string)
+func main() {
+	urls := []string{
+		// 政府CIOポータルサイトのリンク
+		"https://cio.go.jp/csv/BasicInformationAll-f2013.csv",
+	}
 
-	go server(ch)
+	ch := make(chan []byte)
 
-	s = <- ch
-	fmt.Println(s)
+	var wg sync.WaitGroup
+	wg.Add(1)
 
-	s = <- ch
-	fmt.Println(s)
+	go downloadCSV(&wg, urls, ch)
 
-	s = <- ch
-	fmt.Println(s)
+
+	for b := range ch {
+		r := csv.NewReader(bytes.NewReader(b))
+
+		for {
+			records, err := r.Read()
+			if err == io.EOF {
+				break
+			}
+			if err != nil {
+				fmt.Println("error reading record:", err)
+				break
+			}
+			// insertData(records)
+			fmt.Println(records)
+		}
+	}
+	wg.Wait()
 }
