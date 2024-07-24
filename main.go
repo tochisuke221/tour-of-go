@@ -1,66 +1,34 @@
+//go:generate stringer -type=Fruit
+
 package main
 
 import (
-	"bytes"
-	"encoding/csv"
 	"fmt"
-	"io"
-	"log"
-	"net/http"
-	"sync"
 )
 
-func downloadCSV(wg *sync.WaitGroup, urls []string, ch chan []byte) {
-	defer wg.Done()
-	defer close(ch)
+type F struct{
+	Name string
+	Age int
+}
 
-	for _, url := range urls {
-		resp, err := http.Get(url)
 
-		if err != nil {
-			log.Println("cannot download CSV:", err)
-			continue
-		}
-		b, err := io.ReadAll(resp.Body)
-		if err != nil {
-			log.Println("cannot read CSV:", err)
-			resp.Body.Close() // ensure the response body is closed
-			continue
-		}
-		resp.Body.Close()
-		ch <- b
-	}
+func (f *F) String() string {
+	return fmt.Sprintf("Name: %s, Age: %d", f.Name, f.Age)
 }
 
 func main() {
-	urls := []string{
-		// 政府CIOポータルサイトのリンク
-		"https://cio.go.jp/csv/BasicInformationAll-f2013.csv",
+	f := &F{
+		Name: "John",
+		Age: 25,
 	}
 
-	ch := make(chan []byte)
-
-	var wg sync.WaitGroup
-	wg.Add(1)
-
-	go downloadCSV(&wg, urls, ch)
-
-
-	for b := range ch {
-		r := csv.NewReader(bytes.NewReader(b))
-
-		for {
-			records, err := r.Read()
-			if err == io.EOF {
-				break
-			}
-			if err != nil {
-				fmt.Println("error reading record:", err)
-				break
-			}
-			// insertData(records)
-			fmt.Println(records)
-		}
-	}
-	wg.Wait()
+	fmt.Printf("%+v\n", f)
 }
+
+type Fruit int
+
+const (
+	Apple Fruit = iota
+	Orange
+	Banana
+)
